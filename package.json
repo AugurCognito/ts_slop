@@ -1,0 +1,62 @@
+{
+  "name": "ts-slop",
+  "version": "0.0.1",
+  "description": "ESLint plugin that catches AI-generated code slop in TypeScript — the ex_slop of the TS ecosystem.",
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "verify": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "typescript",
+    "slop",
+    "ai",
+    "code-quality",
+    "linter"
+  ],
+  "author": "Aniket Singh",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/augurcognito/ts_slop.git"
+  },
+  "homepage": "https://github.com/augurcognito/ts_slop",
+  "bugs": {
+    "url": "https://github.com/augurcognito/ts_slop/issues"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0",
+    "typescript": ">=5.0.0"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.35.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/rule-tester": "^8.35.1",
+    "@types/node": "^22.15.0",
+    "eslint": "^9.30.1",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
