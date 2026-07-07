@@ -31,7 +31,7 @@ function containsAwait(node: TSESTree.Node): boolean {
 
   for (const key of Object.keys(node)) {
     if (key === 'parent') continue;
-    const child = (node as unknown as Record<string, unknown>)[key];
+    const child = node[key as keyof typeof node];
     if (child && typeof child === 'object') {
       if (Array.isArray(child)) {
         for (const item of child) {

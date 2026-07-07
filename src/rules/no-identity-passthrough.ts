@@ -1,27 +1,26 @@
 import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
   (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
 );
 
-function isIdentityArrow(node: { type: string; params?: unknown[]; body?: { type: string; name?: string } }): boolean {
+function isIdentityArrow(node: TSESTree.Node): boolean {
   if (node.type !== AST_NODE_TYPES.ArrowFunctionExpression) return false;
-  const arrow = node as { params: { type: string; name?: string }[]; body: { type: string; name?: string } };
-  if (arrow.params.length !== 1) return false;
-  const param = arrow.params[0];
+  if (node.params.length !== 1) return false;
+  const param = node.params[0];
   if (param.type !== AST_NODE_TYPES.Identifier) return false;
 
   if (
-    arrow.body.type === AST_NODE_TYPES.Identifier &&
-    arrow.body.name === param.name
+    node.body.type === AST_NODE_TYPES.Identifier &&
+    node.body.name === param.name
   ) {
     return true;
   }
 
-  if (arrow.body.type === AST_NODE_TYPES.BlockStatement) {
-    const block = arrow.body as unknown as { body: { type: string; argument?: { type: string; name?: string } | null }[] };
-    if (block.body.length === 1) {
-      const stmt = block.body[0];
+  if (node.body.type === AST_NODE_TYPES.BlockStatement) {
+    if (node.body.body.length === 1) {
+      const stmt = node.body.body[0];
       if (
         stmt.type === AST_NODE_TYPES.ReturnStatement &&
         stmt.argument?.type === AST_NODE_TYPES.Identifier &&
@@ -59,7 +58,7 @@ export default createRule({
         const method = node.callee.property.name;
         if (!IDENTITY_METHODS.has(method)) return;
         if (node.arguments.length !== 1) return;
-        if (isIdentityArrow(node.arguments[0] as { type: string; params?: unknown[]; body?: { type: string; name?: string } })) {
+        if (isIdentityArrow(node.arguments[0])) {
           context.report({
             node,
             messageId: 'identity',

@@ -1,25 +1,22 @@
 import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
   (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
 );
 
-function isBooleanLiteral(node: { type: string; value?: unknown }): node is { type: string; value: boolean } {
-  return node.type === AST_NODE_TYPES.Literal && typeof node.value === 'boolean';
-}
-
-function isReturnBoolean(node: { type: string; argument?: { type: string; value?: unknown } | null }): boolean {
+function isReturnBoolean(node: TSESTree.Statement): boolean {
   return (
     node.type === AST_NODE_TYPES.ReturnStatement &&
     node.argument != null &&
-    isBooleanLiteral(node.argument)
+    node.argument.type === AST_NODE_TYPES.Literal &&
+    typeof node.argument.value === 'boolean'
   );
 }
 
-function unwrapBlock(node: { type: string }): unknown | undefined {
+function unwrapBlock(node: TSESTree.Statement): TSESTree.Statement | undefined {
   if (node.type === AST_NODE_TYPES.BlockStatement) {
-    const body = (node as unknown as { body: { type: string }[] }).body;
-    return body.length === 1 ? body[0] : undefined;
+    return node.body.length === 1 ? node.body[0] : undefined;
   }
   return node;
 }
@@ -46,9 +43,7 @@ export default createRule({
         const consequent = unwrapBlock(node.consequent);
         const alternate = unwrapBlock(node.alternate);
         if (!consequent || !alternate) return;
-        const c = consequent as { type: string; argument?: { type: string; value?: unknown } | null };
-        const a = alternate as { type: string; argument?: { type: string; value?: unknown } | null };
-        if (isReturnBoolean(c) && isReturnBoolean(a)) {
+        if (isReturnBoolean(consequent) && isReturnBoolean(alternate)) {
           context.report({ node, messageId: 'redundant' });
         }
       },

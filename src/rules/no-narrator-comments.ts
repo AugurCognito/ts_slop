@@ -1,5 +1,4 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
-import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
   (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
@@ -29,7 +28,7 @@ export default createRule({
       Program() {
         for (const comment of sourceCode.getAllComments()) {
           if (comment.type === 'Line' && NARRATOR_PATTERN.test(`//${comment.value}`)) {
-            context.report({ node: comment as unknown as TSESTree.Node, messageId: 'narrator' });
+            context.report({ loc: comment.loc, messageId: 'narrator' });
           }
         }
       },

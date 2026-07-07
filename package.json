@@ -23,7 +23,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "pnpm typecheck && pnpm test && pnpm build"
+    "lint": "eslint src/",
+    "verify": "pnpm typecheck && pnpm test && pnpm build && pnpm lint"
   },
   "keywords": [
     "eslint",
@@ -53,10 +54,11 @@
     "@typescript-eslint/utils": "^8.35.1"
   },
   "devDependencies": {
-    "@typescript-eslint/rule-tester": "^8.35.1",
     "@types/node": "^22.15.0",
+    "@typescript-eslint/rule-tester": "^8.35.1",
     "eslint": "^9.30.1",
     "typescript": "^5.8.3",
+    "typescript-eslint": "^8.62.1",
     "vitest": "^3.2.4"
   }
 }

@@ -1,5 +1,4 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
-import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
   (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
@@ -36,7 +35,7 @@ export default createRule({
           if (tail === '' || tail === '—' || tail === '-') {
             const directive = text.includes('@ts-ignore') ? 'ignore' : 'expect-error';
             context.report({
-              node: comment as unknown as TSESTree.Node,
+              loc: comment.loc,
               messageId: 'missingDescription',
               data: { directive },
             });
