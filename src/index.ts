@@ -27,7 +27,7 @@ const rules = {
 const plugin = {
   meta: {
     name: 'ts-slop',
-    version: '0.1.1',
+    version: '0.1.2',
   },
   rules,
   configs: {} as Record<string, unknown>,

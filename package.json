@@ -1,6 +1,6 @@
 {
   "name": "ts-slop",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ESLint plugin that catches AI-generated code slop in TypeScript — the ex_slop of the TS ecosystem.",
   "type": "module",
   "packageManager": "pnpm@11.9.0",
@@ -39,11 +39,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/augurcognito/ts_slop.git"
+    "url": "https://github.com/AugurCognito/ts_slop.git"
   },
-  "homepage": "https://github.com/augurcognito/ts_slop",
+  "homepage": "https://github.com/AugurCognito/ts_slop",
   "bugs": {
-    "url": "https://github.com/augurcognito/ts_slop/issues"
+    "url": "https://github.com/AugurCognito/ts_slop/issues"
   },
   "peerDependencies": {
     "eslint": ">=9.0.0",
