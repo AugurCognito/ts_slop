@@ -14,6 +14,10 @@ tester.run('no-dual-key-access', rule, {
     { name: 'different objects', code: 'const x = a.userId ?? b.user_id;' },
     { name: 'same key both sides', code: 'const x = usage.inputTokens ?? usage.inputTokens;' },
     { name: 'plain default value', code: 'const x = usage.inputTokens ?? 0;' },
+    {
+      name: 'call expression base — cannot assume referential equality',
+      code: 'const x = getUsage().input_tokens ?? getUsage().inputTokens;',
+    },
   ],
   invalid: [
     {
@@ -29,6 +33,11 @@ tester.run('no-dual-key-access', rule, {
     {
       name: 'bracket access variants',
       code: "const tokens = usage['input_tokens'] ?? usage['inputTokens'];",
+      errors: [{ messageId: 'dualKeyAccess' }],
+    },
+    {
+      name: 'optional chaining on both sides',
+      code: 'const tokens = usage?.input_tokens ?? usage?.inputTokens;',
       errors: [{ messageId: 'dualKeyAccess' }],
     },
   ],

@@ -30,5 +30,10 @@ tester.run('no-reduce-as-map', rule, {
       code: 'const mapped = items.reduce((acc, x) => { acc.push(f(x)); acc.push(g(x)); return acc; }, []);',
       errors: [{ messageId: 'reduceAsMap' }],
     },
+    {
+      name: 'unshift then return acc',
+      code: 'const mapped = items.reduce((acc, x) => { acc.unshift(f(x)); return acc; }, []);',
+      errors: [{ messageId: 'reduceAsMap' }],
+    },
   ],
 });

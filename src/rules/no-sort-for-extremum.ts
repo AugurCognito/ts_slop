@@ -2,7 +2,7 @@ import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 function isSortCall(node: TSESTree.Node): boolean {
@@ -18,6 +18,17 @@ function isZero(node: TSESTree.Node | null | undefined): boolean {
 
 function isOne(node: TSESTree.Node | null | undefined): boolean {
   return node?.type === AST_NODE_TYPES.Literal && node.value === 1;
+}
+
+function isNegativeOne(node: TSESTree.Node | null | undefined): boolean {
+  if (!node) return false;
+  if (node.type === AST_NODE_TYPES.Literal) return node.value === -1;
+  return (
+    node.type === AST_NODE_TYPES.UnaryExpression &&
+    node.operator === '-' &&
+    node.argument.type === AST_NODE_TYPES.Literal &&
+    node.argument.value === 1
+  );
 }
 
 export default createRule({
@@ -49,16 +60,25 @@ export default createRule({
           return;
         }
 
-        if (method === 'slice' && node.arguments.length === 2) {
-          if (isZero(node.arguments[0]) && isOne(node.arguments[1])) {
+        if (method === 'slice') {
+          if (
+            (node.arguments.length === 2 && isZero(node.arguments[0]) && isOne(node.arguments[1])) ||
+            (node.arguments.length === 1 && isNegativeOne(node.arguments[0]))
+          ) {
+            context.report({ node, messageId: 'sortForExtremum' });
+          }
+          return;
+        }
+
+        if (method === 'at' && node.arguments.length === 1) {
+          if (isZero(node.arguments[0]) || isNegativeOne(node.arguments[0])) {
             context.report({ node, messageId: 'sortForExtremum' });
           }
         }
       },
       MemberExpression(node) {
         if (!node.computed) return;
-        if (node.property.type !== AST_NODE_TYPES.Literal) return;
-        if (node.property.value !== 0) return;
+        if (!isZero(node.property) && !isNegativeOne(node.property)) return;
         if (isSortCall(node.object)) {
           context.report({ node, messageId: 'sortForExtremum' });
         }

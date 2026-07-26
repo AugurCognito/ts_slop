@@ -30,5 +30,15 @@ tester.run('no-empty-catch', rule, {
       code: 'try { f(); } catch (e) { /* ignore */ }',
       errors: [{ messageId: 'emptyCatch' }],
     },
+    {
+      name: 'catch with only an empty statement',
+      code: 'try { f(); } catch (e) { ; }',
+      errors: [{ messageId: 'emptyCatch' }],
+    },
+    {
+      name: 'catch with only multiple empty statements',
+      code: 'try { f(); } catch (e) { ;; }',
+      errors: [{ messageId: 'emptyCatch' }],
+    },
   ],
 });

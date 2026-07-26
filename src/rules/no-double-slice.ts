@@ -1,7 +1,8 @@
 import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
+import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 export default createRule({
@@ -19,8 +20,14 @@ export default createRule({
   },
   defaultOptions: [],
   create(context) {
+    // For a chain of 3+ `.slice()` calls, only the outermost pair is
+    // reported; the inner call is marked handled so it isn't also flagged
+    // for pairing with the one below it.
+    const handled = new Set<TSESTree.Node>();
+
     return {
       CallExpression(node) {
+        if (handled.has(node)) return;
         if (node.callee.type !== AST_NODE_TYPES.MemberExpression) return;
         if (node.callee.property.type !== AST_NODE_TYPES.Identifier) return;
         if (node.callee.property.name !== 'slice') return;
@@ -32,6 +39,7 @@ export default createRule({
         if (inner.callee.property.name !== 'slice') return;
 
         context.report({ node, messageId: 'doubleSlice' });
+        handled.add(inner);
       },
     };
   },

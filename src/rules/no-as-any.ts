@@ -1,7 +1,7 @@
 import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 export default createRule({

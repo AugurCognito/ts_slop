@@ -39,5 +39,10 @@ tester.run('no-boilerplate-jsdoc-params', rule, {
       code: '/**\n * @param {string} userId - The user ID\n */\nfunction f(userId) {}',
       errors: [{ messageId: 'boilerplateParam' }],
     },
+    {
+      name: 'reports only the offending @param line, not the whole block',
+      code: '/**\n * @param goodParam - Must be positive and even\n * @param userId - The user id\n */\nfunction f(goodParam, userId) {}',
+      errors: [{ messageId: 'boilerplateParam', line: 3, endLine: 3 }],
+    },
   ],
 });

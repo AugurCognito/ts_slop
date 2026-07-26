@@ -2,20 +2,22 @@ import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 function isEmptyArray(node: TSESTree.Node | undefined): boolean {
   return node?.type === AST_NODE_TYPES.ArrayExpression && node.elements.length === 0;
 }
 
-function pushesToAcc(stmt: TSESTree.Statement, accName: string): boolean {
+const MUTATING_METHODS = new Set(['push', 'unshift']);
+
+function mutatesAcc(stmt: TSESTree.Statement, accName: string): boolean {
   if (stmt.type !== AST_NODE_TYPES.ExpressionStatement) return false;
   const expr = stmt.expression;
   if (expr.type !== AST_NODE_TYPES.CallExpression) return false;
   if (expr.callee.type !== AST_NODE_TYPES.MemberExpression) return false;
   if (expr.callee.property.type !== AST_NODE_TYPES.Identifier) return false;
-  if (expr.callee.property.name !== 'push') return false;
+  if (!MUTATING_METHODS.has(expr.callee.property.name)) return false;
   return expr.callee.object.type === AST_NODE_TYPES.Identifier && expr.callee.object.name === accName;
 }
 
@@ -47,9 +49,11 @@ function buildsArrayViaPush(fn: TSESTree.Node): boolean {
   const body = statements.slice(0, -1);
   if (body.length === 0) return false;
 
-  // Every remaining statement must be an unconditional push — a conditional
-  // push is filtering, not mapping, and belongs to a different rule.
-  return body.every((stmt) => pushesToAcc(stmt, accName));
+  // Every remaining statement must be an unconditional push/unshift — a
+  // conditional push is filtering, not mapping, and belongs to a different
+  // rule. `.every` (not `.some`) is intentional: one non-matching statement
+  // means this isn't a pure map-via-reduce.
+  return body.every((stmt) => mutatesAcc(stmt, accName));
 }
 
 export default createRule({
@@ -72,6 +76,9 @@ export default createRule({
         if (node.callee.type !== AST_NODE_TYPES.MemberExpression) return;
         if (node.callee.property.type !== AST_NODE_TYPES.Identifier) return;
         if (node.callee.property.name !== 'reduce') return;
+        // Exactly 2 args: a reduce without an initial value folds over the
+        // array itself, which is a different (non-map) shape — not an
+        // oversight to "simplify" away.
         if (node.arguments.length !== 2) return;
         if (!isEmptyArray(node.arguments[1])) return;
 

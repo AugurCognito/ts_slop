@@ -1,7 +1,7 @@
-import { ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 export default createRule({
@@ -22,7 +22,10 @@ export default createRule({
   create(context) {
     return {
       CatchClause(node) {
-        if (node.body.body.length === 0) {
+        const meaningful = node.body.body.filter(
+          (stmt) => stmt.type !== AST_NODE_TYPES.EmptyStatement,
+        );
+        if (meaningful.length === 0) {
           context.report({ node, messageId: 'emptyCatch' });
         }
       },

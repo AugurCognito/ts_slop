@@ -25,5 +25,10 @@ tester.run('no-double-slice', rule, {
       code: 'getItems().slice(1).slice(-1);',
       errors: [{ messageId: 'doubleSlice' }],
     },
+    {
+      name: 'triple chain reports only the outer pair',
+      code: 'arr.slice(1).slice(2).slice(3);',
+      errors: [{ messageId: 'doubleSlice' }],
+    },
   ],
 });

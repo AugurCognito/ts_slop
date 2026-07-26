@@ -2,7 +2,7 @@ import { ESLintUtils, AST_NODE_TYPES } from '@typescript-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 function isEmptyObject(node: TSESTree.Node | undefined): boolean {
@@ -43,6 +43,10 @@ function buildsObjectViaMutation(fn: TSESTree.Node): boolean {
   const last = statements[statements.length - 1];
   if (!returnsIdentifier(last, accName)) return false;
 
+  // `.some` (not `.every`) is intentional: this rule flags object-building
+  // via mutation even alongside other bookkeeping statements, unlike
+  // no-reduce-as-map, which requires every statement to be a push (its
+  // stricter shape rules out reduce calls that also filter or transform).
   return statements.slice(0, -1).some((stmt) => assignsToAccMember(stmt, accName));
 }
 
@@ -67,6 +71,9 @@ export default createRule({
         if (node.callee.type !== AST_NODE_TYPES.MemberExpression) return;
         if (node.callee.property.type !== AST_NODE_TYPES.Identifier) return;
         if (node.callee.property.name !== 'reduce') return;
+        // Exactly 2 args: a reduce without an initial value folds over the
+        // array itself, which is a different (non-object-building) shape —
+        // not an oversight to "simplify" away.
         if (node.arguments.length !== 2) return;
         if (!isEmptyObject(node.arguments[1])) return;
 

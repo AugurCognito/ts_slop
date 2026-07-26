@@ -1,7 +1,7 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
 
 const createRule = ESLintUtils.RuleCreator(
-  (name) => `https://github.com/augurcognito/ts_slop/blob/main/docs/rules/${name}.md`,
+  () => 'https://github.com/augurcognito/ts_slop/blob/main/README.md#rules',
 );
 
 const PARAM_LINE_PATTERN =
@@ -48,7 +48,11 @@ export default createRule({
           if (comment.type !== 'Block') continue;
           if (!comment.value.startsWith('*')) continue;
 
+          let offset = 0;
           for (const line of comment.value.split('\n')) {
+            const lineStart = offset;
+            offset += line.length + 1; // +1 for the newline consumed by split
+
             const match = PARAM_LINE_PATTERN.exec(line);
             if (!match) continue;
 
@@ -56,7 +60,16 @@ export default createRule({
             if (!description.trim()) continue;
 
             if (normalizeDescription(description) === humanize(name)) {
-              context.report({ loc: comment.loc, messageId: 'boilerplateParam', data: { name } });
+              const start = comment.range[0] + 2 + lineStart;
+              const end = start + line.length;
+              context.report({
+                loc: {
+                  start: sourceCode.getLocFromIndex(start),
+                  end: sourceCode.getLocFromIndex(end),
+                },
+                messageId: 'boilerplateParam',
+                data: { name },
+              });
             }
           }
         }
